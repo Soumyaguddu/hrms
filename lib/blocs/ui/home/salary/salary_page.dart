@@ -49,7 +49,14 @@ class SalaryStructurePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
+            const Text(
+              'Earnings',
+              style:
+              TextStyle(color: Colors.green, fontWeight: FontWeight.bold,fontSize: 18),
+            ),
             const Divider(height: 10, thickness: 2),
+
+
             // Salary components in a column format
             Expanded(
               child: ListView(
@@ -59,6 +66,12 @@ class SalaryStructurePage extends StatelessWidget {
                   salaryItem("Conveyance Allowance", "₹12,000"),
                   salaryItem("Medical Allowance", "₹5,000"),
                   salaryItem("Travel Allowance", "₹2,500"),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Deductions',
+                    style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold,fontSize: 18),
+                  ),
                   const Divider(thickness: 2),
                   salaryItem("Provident Fund", "- ₹3,000"),
                   salaryItem("Professional Tax", "- ₹200"),
@@ -124,7 +137,7 @@ class SalaryStructurePage extends StatelessWidget {
   // Helper widget for salary items
   Widget salaryItem(String title, String amount, {bool isBold = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 5.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -132,13 +145,14 @@ class SalaryStructurePage extends StatelessWidget {
             title,
             style: TextStyle(
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              color: Colors.black,
               fontSize: 16,
             ),
           ),
           Text(
             amount,
             style: TextStyle(
-              color: isBold ? Colors.black : Colors.grey[700],
+              color: isBold ? Colors.black : Colors.black,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
               fontSize: isBold ? 18 : 16,
             ),

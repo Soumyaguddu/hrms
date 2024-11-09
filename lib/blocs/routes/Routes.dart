@@ -5,6 +5,7 @@ import 'package:hrms/blocs/ui/home/salary/salary_page.dart';
 
 import '../ui/auth/login_screen.dart';
 import '../ui/home/home.dart';
+import '../ui/home/pay_slip/pay_slip.dart';
 import '../ui/splash/splash_screen.dart';
 
 class Routes {
@@ -13,6 +14,7 @@ class Routes {
   static const String login = "/login";
   static const String home = "/home";
   static const String salary = "/salary";
+  static const String pay_slip = "/pay_slip";
 
   static Route? onGenerate(RouteSettings settings) {
     switch (settings.name) {
@@ -30,6 +32,9 @@ class Routes {
         case salary:
         return MaterialPageRoute(
             builder: (context) =>  SalaryStructurePage());
+        case pay_slip:
+        return MaterialPageRoute(
+            builder: (context) =>  PayslipPage());
     }
     return null;
   }

@@ -78,7 +78,14 @@ class _HomePageState extends State<HomePage> {
               elevation: 10,
               child: InkWell(
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, Routes.salary);
+                  if(index==0)
+                    {
+                      Navigator.pushReplacementNamed(context, Routes.salary);
+                    }
+                  else if(index==1)
+{
+  Navigator.pushReplacementNamed(context, Routes.pay_slip);
+}
                   // Define actions for each card here, if needed
                 /*  ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('${cardItems[index]['title']} clicked')),
