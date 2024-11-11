@@ -3,6 +3,7 @@ import 'package:hrms/constants/ColorConstant.dart';
 import 'package:hrms/main.dart';
 
 import '../../routes/Routes.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -21,19 +22,20 @@ class _HomePageState extends State<HomePage> {
     {'title': 'Leave Details', 'icon': Icons.calendar_today},
     {'title': 'Attendance', 'icon': Icons.location_on},
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  backgroundColor: ColorConstant.themeColor,
+      backgroundColor: ColorConstant.themeColor,
       appBar: AppBar(
         backgroundColor: ColorConstant.green_chart_color,
         elevation: 0,
-        title:
-        Row(
+        title: Row(
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundImage: NetworkImage('https://avatar.iran.liara.run/public/boy?username=Ash'), // Replace with a real image URL or AssetImage
+              backgroundImage: NetworkImage(
+                  'https://avatar.iran.liara.run/public/boy?username=Ash'), // Replace with a real image URL or AssetImage
             ),
             const SizedBox(width: 15),
             const Text(
@@ -48,7 +50,10 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.menu,color: Colors.white,),
+            icon: const Icon(
+              Icons.menu,
+              color: Colors.white,
+            ),
             onPressed: () {
               // Define menu action here
               ScaffoldMessenger.of(context).showSnackBar(
@@ -59,7 +64,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0,vertical: 50.0),
+        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 50.0),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3, // Two cards per row
@@ -78,16 +83,17 @@ class _HomePageState extends State<HomePage> {
               elevation: 10,
               child: InkWell(
                 onTap: () {
-                  if(index==0)
-                    {
-                      Navigator.pushReplacementNamed(context, Routes.salary);
-                    }
-                  else if(index==1)
-{
-  Navigator.pushReplacementNamed(context, Routes.pay_slip);
-}
+                  if (index == 0) {
+                    Navigator.pushReplacementNamed(context, Routes.salary);
+                  } else if (index == 1) {
+                    Navigator.pushReplacementNamed(context, Routes.pay_slip);
+                  } else if (index == 2) {
+                    Navigator.pushReplacementNamed(context, Routes.earning);
+                  }else if (index == 3) {
+                    Navigator.pushReplacementNamed(context, Routes.benefit);
+                  }
                   // Define actions for each card here, if needed
-                /*  ScaffoldMessenger.of(context).showSnackBar(
+                  /*  ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('${cardItems[index]['title']} clicked')),
                   );*/
                 },
@@ -96,7 +102,8 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(cardItems[index]['icon'], size: 40, color: ColorConstant.green_chart_color),
+                      Icon(cardItems[index]['icon'],
+                          size: 40, color: ColorConstant.green_chart_color),
                       const SizedBox(height: 5),
                       Text(
                         cardItems[index]['title'],

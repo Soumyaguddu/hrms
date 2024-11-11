@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hrms/blocs/ui/home/benefits/benefit_page.dart';
+import 'package:hrms/blocs/ui/home/earnings/earning_page.dart';
 import 'package:hrms/blocs/ui/home/salary/salary_page.dart';
 
 import '../ui/auth/login_screen.dart';
@@ -15,6 +17,8 @@ class Routes {
   static const String home = "/home";
   static const String salary = "/salary";
   static const String pay_slip = "/pay_slip";
+  static const String earning = "/earning";
+  static const String benefit = "/benefit";
 
   static Route? onGenerate(RouteSettings settings) {
     switch (settings.name) {
@@ -35,6 +39,12 @@ class Routes {
         case pay_slip:
         return MaterialPageRoute(
             builder: (context) =>  PayslipPage());
+        case earning:
+        return MaterialPageRoute(
+            builder: (context) =>  EarningPage());
+        case benefit:
+        return MaterialPageRoute(
+            builder: (context) =>  EPFPage());
     }
     return null;
   }
