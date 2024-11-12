@@ -92,6 +92,14 @@ class _HomePageState extends State<HomePage> {
                   }else if (index == 3) {
                     Navigator.pushReplacementNamed(context, Routes.benefit);
                   }
+                  else if (index == 4) {
+                    Navigator.pushReplacementNamed(context, Routes.loan);
+                  }
+                  else if (index == 5) {
+                    Navigator.pushReplacementNamed(context, Routes.document);
+                  } else if (index == 7) {
+                    Navigator.pushReplacementNamed(context, Routes.attendance);
+                  }
                   // Define actions for each card here, if needed
                   /*  ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('${cardItems[index]['title']} clicked')),

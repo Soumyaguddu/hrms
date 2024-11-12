@@ -109,47 +109,52 @@ class _EPFPageState extends State<EPFPage> {
               // EPF Overview Section
               _buildEPFOverview(),
               // Month-wise EPF Details
-              ListView.builder(
-                shrinkWrap: true, // This prevents the ListView from taking all space
-                itemCount: epfData.length,
-                itemBuilder: (context, index) {
-                  final data = epfData[index];
-                  return ExpansionTile(
-                    title: Text(data['month'],
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    leading: const Icon(Icons.calendar_month),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            salaryItem('PF Wages:', '₹${data['amount']}',
-                                isBold: true),
-                            const Divider(),
-                            const SizedBox(
-                              height: 10,
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Card(
+                  child: ListView.builder(
+                    shrinkWrap: true, // This prevents the ListView from taking all space
+                    itemCount: epfData.length,
+                    itemBuilder: (context, index) {
+                      final data = epfData[index];
+                      return ExpansionTile(
+                        title: Text(data['month'],
+                            style: const TextStyle(fontWeight: FontWeight.normal)),
+                        leading: const Icon(Icons.calendar_month),
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                salaryItem('PF Wages:', '₹${data['amount']}',
+                                    isBold: true),
+                                const Divider(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                salaryItem('Employee Contribution:', '',
+                                    isBold: true),
+                                salaryItem('EPF Contribution: ',
+                                    '₹${data['contribution']}'),
+                                const Divider(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                salaryItem('Employer Contribution:', '',
+                                    isBold: true),
+                                salaryItem('EPF Contribution:',
+                                    '₹${data['contribution']}'),
+                                salaryItem('EPS Contribution:',
+                                    '₹${data['contribution']}'),
+                              ],
                             ),
-                            salaryItem('Employee Contribution:', '',
-                                isBold: true),
-                            salaryItem('EPF Contribution: ',
-                                '₹${data['contribution']}'),
-                            const Divider(),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            salaryItem('Employer Contribution:', '',
-                                isBold: true),
-                            salaryItem('EPF Contribution:',
-                                '₹${data['contribution']}'),
-                            salaryItem('EPS Contribution:',
-                                '₹${data['contribution']}'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
             ],
           ),
@@ -157,7 +162,18 @@ class _EPFPageState extends State<EPFPage> {
       ),
     );
   }
-
+  Widget _buildLoanDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(value),
+        ],
+      ),
+    );
+  }
   Widget salaryItem(String title, String amount, {bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -187,17 +203,29 @@ class _EPFPageState extends State<EPFPage> {
   // Helper function to build the detail rows
   Widget _buildEPFOverview() {
     return Padding(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(5.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          salaryItem('Employee Name', 'Soumyajit Sen', isBold: true),
-          salaryItem('Employee ID', 'EMP12345', isBold: true),
-          salaryItem('UAN Number:', "10151545454", isBold: true),
-          salaryItem('PF Number:', "WB/HLO/14778114/000/14785", isBold: true),
-          salaryItem('Total EPF Amount:', '₹21475', isBold: true),
-          salaryItem('Employee Share:', '₹10742', isBold: true),
-          salaryItem('Employer Share:', '₹10742', isBold: true),
+
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                 
+                  _buildLoanDetailRow('Employee Name', 'Soumyajit Sen',),
+                  _buildLoanDetailRow('Employee ID', 'EMP12345',),
+                  _buildLoanDetailRow('PF Number:', "WB/HLO/14778114/000/14785",),
+                  _buildLoanDetailRow('Total EPF Amount:', '₹21475'),
+                  _buildLoanDetailRow('Employee Share:', '₹10742'),
+                  _buildLoanDetailRow('Employer Share:', '₹10742'),
+                ],
+              ),
+            ),
+          ),
+
           SizedBox(
             height: 10,
           ),
