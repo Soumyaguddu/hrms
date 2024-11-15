@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hrms/blocs/ui/auth/cubit/auth_cubit.dart';
 
 import 'blocs/internet_cubit/internet_cubit.dart';
 import 'blocs/routes/Routes.dart';
+import 'blocs/ui/home/logic/home_cubit.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() {
   runApp(const MyApp());
@@ -15,8 +17,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [  BlocProvider<InternetCubit>(
+      providers: [
+        BlocProvider<InternetCubit>(
         create: (context) => InternetCubit(),
+      ),
+        BlocProvider<AuthCubit>(
+        create: (context) => AuthCubit(),
+      ),BlocProvider<HomeSalaryCubit>(
+        create: (context) => HomeSalaryCubit(),
       ),],
       child: MaterialApp(
         navigatorKey: navigatorKey, // Set the global navigator key
@@ -32,6 +40,7 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+
 }
 
 

@@ -31,7 +31,7 @@ class ColorConstant{
   static  Color pink_chart_color = const Color(0xFFFCA7A7);
   static  Color purple_chart_color = const Color(0xFFE0D6FF);
   static  Color orange_chart_color = const Color(0xFFFDC4B2);
-  static  Color green_chart_color = const Color(0xFF56C9AE);
+  static  Color green_chart_color = const Color(0xFF5151E8);
   static  Color green_chart_text_color = const Color(0xFF88FFB1);
   static  Color green_chart_view_color = const Color(0xFFE1FFEB);
   static  Color blue_chart_color = const Color(0xFF9AEBFF);

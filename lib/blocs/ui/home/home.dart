@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                   if (index == 0) {
                     Navigator.pushReplacementNamed(context, Routes.salary);
                   } else if (index == 1) {
-                    Navigator.pushReplacementNamed(context, Routes.pay_slip);
+                    Navigator.pushReplacementNamed(context, Routes.pay_slip_listing);
                   } else if (index == 2) {
                     Navigator.pushReplacementNamed(context, Routes.earning);
                   }else if (index == 3) {

@@ -6,6 +6,7 @@ import 'package:hrms/blocs/ui/home/documents/document_first.dart';
 import 'package:hrms/blocs/ui/home/earnings/earning_page.dart';
 import 'package:hrms/blocs/ui/home/loan/loan_page.dart';
 import 'package:hrms/blocs/ui/home/loan/loan_request_page.dart';
+import 'package:hrms/blocs/ui/home/pay_slip/data/pay_slip_list_data.dart';
 import 'package:hrms/blocs/ui/home/salary/salary_page.dart';
 
 import '../ui/auth/login_screen.dart';
@@ -13,6 +14,7 @@ import '../ui/home/documents/document_listing_page.dart';
 import '../ui/home/home.dart';
 import '../ui/home/loan/loan_listing_page.dart';
 import '../ui/home/pay_slip/pay_slip.dart';
+import '../ui/home/pay_slip/pay_slip_list_screen.dart';
 import '../ui/splash/splash_screen.dart';
 
 class Routes {
@@ -22,6 +24,7 @@ class Routes {
   static const String home = "/home";
   static const String salary = "/salary";
   static const String pay_slip = "/pay_slip";
+  static const String pay_slip_listing = "/pay_slip_listing";
   static const String earning = "/earning";
   static const String benefit = "/benefit";
   static const String loan = "/loan";
@@ -49,7 +52,10 @@ class Routes {
             builder: (context) =>  SalaryStructurePage());
         case pay_slip:
         return MaterialPageRoute(
-            builder: (context) =>  PayslipPage());
+            builder: (context) =>  PayslipPage(PaySlipListData(allowanceDetails: List.empty(),gross_salary: '',monthName: '',payable_salary: '',total_deduction: '',yearName: '',emp_code: '',emp_name: '',basic_salary: '',epf_amount: '',pTaxAmount: '',esi_amount: '',payable_days: '',ncp_days: '')));
+        case pay_slip_listing:
+        return MaterialPageRoute(
+            builder: (context) =>  PaySlipListingPage());
         case earning:
         return MaterialPageRoute(
             builder: (context) =>  EarningPage());
@@ -73,7 +79,7 @@ class Routes {
             builder: (context) =>  DocumentListPage());
         case document_listing:
         return MaterialPageRoute(
-            builder: (context) =>  PayslipListPage());
+            builder: (context) =>  DocumentPaySlipWiseListPage());
     }
     return null;
   }

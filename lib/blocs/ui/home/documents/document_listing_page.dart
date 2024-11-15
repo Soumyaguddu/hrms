@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../constants/ColorConstant.dart';
 import '../../../routes/Routes.dart';
 
-class PayslipListPage extends StatelessWidget {
+class DocumentPaySlipWiseListPage extends StatelessWidget {
   // Example payslip data
   final List<Map<String, String>> payslips = [
     {'title': 'Payslip - October 2024', 'date': '2024-10-31'},

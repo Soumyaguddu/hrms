@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constants/ColorConstant.dart';
 import '../../../constants/ImageConstant.dart';
@@ -19,10 +20,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Navigate after 3 seconds delay
     Future.delayed(const Duration(seconds: 3), () async {
-     // String token = await getToken();
-     // print('token====$token');
-
-      Navigator.pushReplacementNamed(context, Routes.login);
+      String token = await getToken();
+      print('token====$token');
+      if (token != 'null' && token.isNotEmpty) {
+        Navigator.pushReplacementNamed(context, Routes.home);
+      } else {
+        Navigator.pushReplacementNamed(context, Routes.login);
+      }
+      //Navigator.pushReplacementNamed(context, Routes.login);
     });
   }
   @override
@@ -55,5 +60,9 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       ),
     );
+  }
+  Future<String> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("user_token") ?? ''; // Return empty string if token is null
   }
 }

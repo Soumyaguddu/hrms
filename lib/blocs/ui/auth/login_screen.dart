@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hrms/blocs/ui/auth/cubit/auth_cubit.dart';
 import 'package:hrms/constants/ColorConstant.dart';
 
 import '../../../constants/ImageConstant.dart';
@@ -13,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool hasError = false;
@@ -62,20 +64,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Email Field
                   TextFormField(
-                    controller: emailController,
+                    controller: phoneNumberController,
                     decoration: InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: const Icon(Icons.email, color: Colors.black),
+                      labelText: 'Phone',
+                      prefixIcon: const Icon(Icons.phone, color: Colors.black),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       filled: true,
                       fillColor: Colors.white70,
                     ),
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.phone,
                     validator: (value) {
-                      if (value == null || !value.contains('@')) {
-                        return "Please enter a valid email";
+                      if (value == null || value.length>10) {
+                        return "Please enter a valid phone no.";
                       }
                       return null;
                     },
@@ -115,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+
 
                   // Login Button
                   Container(
@@ -136,8 +138,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           setState(() {
                             hasError = false;
                           });
-                          Navigator.pushReplacementNamed(context, Routes.home);
-                          snackBar("Logged in successfully!");
+                          context.read<AuthCubit>().login(
+                            context: context,
+                            mobileNumber: phoneNumberController.text.toString(),
+                            password: passwordController.text.toString(),
+                          );
+
+
+                         // Navigator.pushReplacementNamed(context, Routes.home);
+                          //snackBar("Logged in successfully!");
                         } else {
                           setState(() {
                             hasError = true;
@@ -154,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+
 
                   // Register or Sign Up option
                   Row(

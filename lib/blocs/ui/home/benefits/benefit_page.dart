@@ -211,7 +211,8 @@ class _EPFPageState extends State<EPFPage> {
           Card(
             child: Padding(
               padding: EdgeInsets.all(10),
-              child: Column(
+              child:
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                  

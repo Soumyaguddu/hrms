@@ -1,15 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:hrms/blocs/ui/home/pay_slip/data/pay_slip_list_data.dart';
+import 'package:hrms/core/helper/month_name_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../constants/ColorConstant.dart';
 import '../../../routes/Routes.dart';
-
+import 'package:intl/intl.dart';
 class PayslipPage extends StatefulWidget {
+  PaySlipListData payslip;
+  PayslipPage(this.payslip);
+
   @override
   State<PayslipPage> createState() => _PayslipPageState();
 }
 
 class _PayslipPageState extends State<PayslipPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getLoginData();
+  }
+  String doj = '';
+  String departmentName = '';
+  String designation = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,11 +32,12 @@ class _PayslipPageState extends State<PayslipPage> {
       appBar: AppBar(
         backgroundColor: ColorConstant.green_chart_color,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.pushReplacementNamed(context, Routes.home);
+                Navigator.pushReplacementNamed(context, Routes.pay_slip_listing);
               },
               child: const Icon(
                 Icons.arrow_back,
@@ -59,8 +75,8 @@ class _PayslipPageState extends State<PayslipPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Payslip Header Section
-              const Text(
-                'Payslip for the Month of October 2024',
+               Text(
+                'Payslip for the Month of ${"${MonthNameHelper.getIdWiseMonthName((int.parse(widget.payslip.monthName)+1).toString())} ${widget.payslip.yearName}\nPaid Days: ${widget.payslip.payable_days}\nLOP Days: ${widget.payslip.ncp_days}"}',
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -70,11 +86,11 @@ class _PayslipPageState extends State<PayslipPage> {
               const Divider(thickness: 2),
               const SizedBox(height: 10),
               // Payslip Details
-              payslipItem('Employee Name', 'Soumyajit Sen'),
-              payslipItem('Employee ID', 'EMP12345'),
-              payslipItem('Designation', 'Software Engineer'),
-              payslipItem('Department', 'Development'),
-              payslipItem('Date of Joining', '02 Jan 2024'),
+              payslipItem('Employee Name', widget.payslip.emp_name),
+              payslipItem('Employee ID', widget.payslip.emp_code),
+              payslipItem('Designation', designation),
+              payslipItem('Department', departmentName),
+              payslipItem('Date of Joining', doj),
               const Divider(thickness: 2),
               const SizedBox(height: 20),
 
@@ -102,7 +118,7 @@ class _PayslipPageState extends State<PayslipPage> {
                   ),
                   const SizedBox(width: 50),
 
-                  const Column(
+                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Column(
@@ -113,7 +129,7 @@ class _PayslipPageState extends State<PayslipPage> {
                             TextStyle(color: Colors.green, fontWeight: FontWeight.bold,fontSize: 18),
                           ),
                         Text(
-                          "₹50,000",
+                          "₹${calculateEarningCTC(widget.payslip).toString()}",
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -130,7 +146,7 @@ class _PayslipPageState extends State<PayslipPage> {
                             TextStyle(color: Colors.red, fontWeight: FontWeight.bold,fontSize: 18),
                           ),
                         Text(
-                          "₹2,000",
+                          "₹${widget.payslip.total_deduction.toString()}",
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -150,23 +166,112 @@ class _PayslipPageState extends State<PayslipPage> {
               const SizedBox(height: 20),
               // Detailed Salary Items
               const Divider(thickness: 2),
-              salaryItem('Basic Pay', '₹50,000'),
-              salaryItem('House Rent Allowance', '₹10,000'),
-              salaryItem('Conveyance Allowance', '₹12,000'),
-              salaryItem('Medical Allowance', '₹5,000'),
-              salaryItem('Travel Allowance', '₹2,500'),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Total Earnings',
+                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    Text(
+                      "₹${calculateMonthlyCTC(widget.payslip!)}",
+                      style: TextStyle(
+                        color: Colors.black ,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18 ,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              salaryItem('Basic Pay',  "₹${widget.payslip.basic_salary.toString()}",),
+              ...widget.payslip.allowanceDetails.map((allowance) =>
+                  salaryItem(allowance.allowanceName, "₹${allowance.allowanceamount}")
+              ).toList(),
+
               const Divider(thickness: 2),
-              salaryItem("Provident Fund", "- ₹3,000"),
-              salaryItem("Professional Tax", "- ₹200"),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Total Deductions',
+                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    Text(
+                      "₹${calculateDeductionCTC(widget.payslip)}",
+                      style: TextStyle(
+                        color: Colors.black ,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18 ,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              salaryItem("EPF Contribution", "₹${widget.payslip.epf_amount}"),
+              salaryItem("Employee State Insurance", "₹${widget.payslip.esi_amount}"),
+              salaryItem("Professional Tax", "₹${widget.payslip.pTaxAmount}"),
               const Divider(thickness: 2),
-              salaryItem('Total Net Pay', '₹74,300', isBold: true),
+              salaryItem('Total Net Pay', '₹${calculateEarningCTC(widget.payslip)}', isBold: true),
             ],
           ),
         ),
       ),
     );
   }
+  int calculateEarningCTC(PaySlipListData paySlipListData) {
+    int totalEarnings = paySlipListData.allowanceDetails.fold(0, (sum, allowance) {
+      return sum + (int.tryParse(allowance.allowanceamount.toString()) ?? 0);
+    });
 
+    return totalEarnings + int.parse(paySlipListData.basic_salary);
+  }
+  int calculateDeductionCTC(PaySlipListData paySlipListData) {
+
+
+    int totalDeductions = int.parse(paySlipListData.esi_amount)+int.parse(paySlipListData.pTaxAmount)+int.parse(paySlipListData.epf_amount);
+
+
+    return totalDeductions ;
+  }
+  int calculateMonthlyCTC(PaySlipListData paySlipListData) {
+    int totalEarnings = paySlipListData.allowanceDetails.fold(0, (sum, allowance) {
+      return sum + (int.tryParse(allowance.allowanceamount.toString()) ?? 0);
+    });
+
+
+    int totalDeductions = int.parse(paySlipListData.esi_amount)+int.parse(paySlipListData.pTaxAmount)+int.parse(paySlipListData.epf_amount);
+
+    return totalEarnings +totalDeductions+ int.parse(paySlipListData.basic_salary);
+  }
+
+  Future<void> getLoginData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String dojData = prefs.getString("doj") ?? '';
+    String establishmentName = prefs.getString("establishmentName") ?? '';
+    String establishmentTypeData = prefs.getString("establishmentType") ?? '';
+    String designationData = prefs.getString("designation") ?? '';
+    String departmentNameData = prefs.getString("departmentName") ?? '';
+    print('doj===$dojData');
+    print('establishmentName===$establishmentName');
+    print('establishmentType===$establishmentTypeData');
+    DateTime dateTime = DateTime.parse(dojData);
+
+    // Format the date
+    String formattedDate = DateFormat("d MMMM, yyyy").format(dateTime);
+    setState(() {
+      doj=formattedDate.toString();
+      designation=designationData.toString();
+      departmentName=departmentNameData.toString();
+
+
+    });
+
+  }
   // Helper widget for Payslip Items
   Widget payslipItem(String title, String value) {
     return Padding(
@@ -220,7 +325,7 @@ class _PayslipPageState extends State<PayslipPage> {
     return [
       PieChartSectionData(
         color: Colors.green,
-        value: 80,
+        value: double.parse(widget.payslip.payable_salary),
         title: '',
         radius: 40,
         titleStyle: const TextStyle(
@@ -228,7 +333,7 @@ class _PayslipPageState extends State<PayslipPage> {
       ),
       PieChartSectionData(
         color: Colors.red,
-        value: 20,
+        value: double.parse(widget.payslip.total_deduction),
         title: '',
         radius: 40,
         titleStyle: const TextStyle(
@@ -237,4 +342,5 @@ class _PayslipPageState extends State<PayslipPage> {
 
     ];
   }
+
 }
