@@ -112,7 +112,8 @@ class _EPFPageState extends State<EPFPage> {
               Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Card(
-                  child: ListView.builder(
+                  child:
+                  ListView.builder(
                     shrinkWrap: true, // This prevents the ListView from taking all space
                     itemCount: epfData.length,
                     itemBuilder: (context, index) {

@@ -16,30 +16,7 @@ class PaySlipListingPage extends StatefulWidget {
 
 class _PaySlipListingPageState extends State<PaySlipListingPage> {
   // Example payslip data
-  final List<Map<String, String>> payslips = [
-    {
-      'title': 'October 2024',
-      'date': '2024-10-31',
-      'gross': '25000',
-      'deductions': '2500',
-      'take_home': '22500'
-    },
-    {
-      'title': 'September 2024',
-      'date': '2024-09-30',
-      'gross': '25000',
-      'deductions': '2500',
-      'take_home': '22500'
-    },
-    {
-      'title': 'August 2024',
-      'date': '2024-08-31',
-      'gross': '25000',
-      'deductions': '2500',
-      'take_home': '22500'
-    },
-    // Add more payslip entries as needed
-  ];
+
 String doj='';
   late List<String> yearsData=[];
   String selectedYear = '';
@@ -122,7 +99,8 @@ String doj='';
           ],
         ),
       ),
-      body: BlocConsumer<HomeSalaryCubit, SalaryAndPaySlipState>(
+      body:
+      BlocConsumer<HomeSalaryCubit, SalaryAndPaySlipState>(
         listener: (context, state) {
           if (state is SalaryAndPaySlipErrorState) {
             SnackBar snackBar = SnackBar(
