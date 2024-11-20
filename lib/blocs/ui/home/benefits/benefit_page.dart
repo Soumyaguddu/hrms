@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hrms/blocs/ui/home/pay_slip/data/pay_slip_list_data.dart';
+import 'package:hrms/core/helper/month_name_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../constants/ColorConstant.dart';
 import '../../../routes/Routes.dart';
+import '../logic/home_cubit.dart';
 
 class EPFPage extends StatefulWidget {
   @override
@@ -21,21 +26,47 @@ class _EPFPageState extends State<EPFPage> {
   ];
 
   final List<String> years = ['2024-2025', '2023-2024'];
-
-  // The currently selected year
   String selectedYear = '';
 
+  String establishmentType = '';
+
+  String doj='';
+
+  late List<String> yearsData=[];
+  List<int> getYearsList(int startYear) {
+    int currentYear = DateTime.now().year;
+    return List<int>.generate(currentYear - startYear + 1, (index) => currentYear - index);
+  }
+  Future<void> getLoginData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String doj = prefs.getString("doj") ?? '';
+    String establishmentName = prefs.getString("establishmentName") ?? '';
+    String establishmentTypeData = prefs.getString("establishmentType") ?? '';
+    print('doj===$doj');
+    print('establishmentName===$establishmentName');
+    print('establishmentType===$establishmentTypeData');
+    DateTime targetDate = DateTime.parse(doj);
+    setState(() {
+      establishmentType=establishmentTypeData.toString();
+      yearsData = getYearsList(targetDate.year).map((year) => year.toString()).toList();
+
+    });
+    context.read<HomeSalaryCubit>().fetchPaySlip(selectedYear,establishmentType);
+    print("YearData==$yearsData");
+  }
   @override
   void initState() {
     super.initState();
     // Set the current year by default
+  
     selectedYear = getCurrentYear();
+    getLoginData();
   }
 
   // Function to get the current year
   String getCurrentYear() {
     final currentYear = DateTime.now().year;
-    return '$currentYear-${currentYear + 1}';
+    return '$currentYear';
   }
 
   @override
@@ -43,6 +74,7 @@ class _EPFPageState extends State<EPFPage> {
     return Scaffold(
       backgroundColor: ColorConstant.themeColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: ColorConstant.green_chart_color,
         elevation: 0,
         title: Row(
@@ -81,9 +113,10 @@ class _EPFPageState extends State<EPFPage> {
                     setState(() {
                       selectedYear = year; // Update the selected year
                     });
+                    context.read<HomeSalaryCubit>().fetchPaySlip(selectedYear,establishmentType);
                   },
                   itemBuilder: (BuildContext context) {
-                    return years.map((String year) {
+                    return yearsData.map((String year) {
                       return PopupMenuItem<String>(
                         value: year,
                         child: Text(year),
@@ -97,68 +130,119 @@ class _EPFPageState extends State<EPFPage> {
                 ),
               ],
             ),
+            // This will push the dropdown to the right
           ],
         ),
       ),
-      body: SingleChildScrollView(  // Add this to make the content scrollable
+      body: 
+      
+      SingleChildScrollView(  // Add this to make the content scrollable
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // EPF Overview Section
-              _buildEPFOverview(),
-              // Month-wise EPF Details
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Card(
-                  child:
-                  ListView.builder(
-                    shrinkWrap: true, // This prevents the ListView from taking all space
-                    itemCount: epfData.length,
-                    itemBuilder: (context, index) {
-                      final data = epfData[index];
-                      return ExpansionTile(
-                        title: Text(data['month'],
-                            style: const TextStyle(fontWeight: FontWeight.normal)),
-                        leading: const Icon(Icons.calendar_month),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                salaryItem('PF Wages:', '₹${data['amount']}',
-                                    isBold: true),
-                                const Divider(),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                salaryItem('Employee Contribution:', '',
-                                    isBold: true),
-                                salaryItem('EPF Contribution: ',
-                                    '₹${data['contribution']}'),
-                                const Divider(),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                salaryItem('Employer Contribution:', '',
-                                    isBold: true),
-                                salaryItem('EPF Contribution:',
-                                    '₹${data['contribution']}'),
-                                salaryItem('EPS Contribution:',
-                                    '₹${data['contribution']}'),
-                              ],
-                            ),
+          child:
+
+          BlocConsumer<HomeSalaryCubit, SalaryAndPaySlipState>(
+            listener: (context, state) {
+              if (state is SalaryAndPaySlipErrorState) {
+                SnackBar snackBar = SnackBar(
+                  content: Text(state.error),
+                  backgroundColor: Colors.red,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              }
+            },
+            builder: (context, state) {
+              if (state is SalaryAndPaySlipLoadingState) {
+                return Padding(
+                  padding: const EdgeInsets.all(35.0),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              if (state is SalaryAndPaySlipLoadedState) {
+                List<double> totalEarnings = [];
+                List<String> monthName = [];
+
+                state.paySlipData?.forEach((paySlip) {
+                  double grossSalary = double.parse(paySlip.gross_salary) ?? 0.0;
+                  double allowancesTotal = paySlip.allowanceDetails.fold(
+                      0.0, (sum, allowance) => sum + (allowance.allowanceamount ?? 0.0));
+                  double totalAmount = grossSalary + allowancesTotal;
+
+                  totalEarnings.add(totalAmount);
+                  totalEarnings.sort(); // Sorts in ascending order
+
+           
+                 
+                });
+
+
+                print(totalEarnings);
+                return
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // EPF Overview Section
+                      _buildEPFOverview(state.paySlipData![0]),
+                      // Month-wise EPF Details
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Card(
+                          child:
+                          ListView.builder(
+                            shrinkWrap: true, // This prevents the ListView from taking all space
+                            itemCount: state.paySlipData?.length,
+                            itemBuilder: (context, index) {
+                              final data = state.paySlipData?[index];
+                              return ExpansionTile(
+                                title: Text(MonthNameHelper.getIdWiseMonthName((int.parse( state.paySlipData![index].monthName)+1).toString()),
+                                    style: const TextStyle(fontWeight: FontWeight.normal)),
+                                leading: const Icon(Icons.calendar_month),
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        salaryItem('PF Wages:', '₹${(int.parse(data!.payable_salary)+int.parse(data.payable_salary)).toString()}',
+                                            isBold: true),
+                                        const Divider(),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        salaryItem('Employee Contribution:', '',
+                                            isBold: true),
+                                        salaryItem('EPF Contribution: ',
+                                            '₹${int.parse(state.paySlipData![index].payable_salary).toString()}'),
+                                        const Divider(),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        salaryItem('Employer Contribution:', '',
+                                            isBold: true),
+                                        salaryItem('EPF Contribution:',
+                                            '₹${int.parse(state.paySlipData![index].payable_salary).toString()}'),
+                                        salaryItem('EPS Contribution:',
+                                          '₹${(double.parse(state.paySlipData![index].payable_salary) * 8.33).round()/100}',),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
+                        ),
+                      ),
+                    ],
+                  );
+              }
+
+              return const Center(child: Text("An error occurred!"));
+            },
+          )
+          
+          
+       
         ),
       ),
     );
@@ -202,7 +286,7 @@ class _EPFPageState extends State<EPFPage> {
   }
 
   // Helper function to build the detail rows
-  Widget _buildEPFOverview() {
+  Widget _buildEPFOverview(PaySlipListData paySlipData) {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Column(
@@ -217,12 +301,12 @@ class _EPFPageState extends State<EPFPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                  
-                  _buildLoanDetailRow('Employee Name', 'Soumyajit Sen',),
-                  _buildLoanDetailRow('Employee ID', 'EMP12345',),
+                  _buildLoanDetailRow('Employee Name', paySlipData.emp_name,),
+                  _buildLoanDetailRow('Employee ID', paySlipData.emp_code),
                   _buildLoanDetailRow('PF Number:', "WB/HLO/14778114/000/14785",),
-                  _buildLoanDetailRow('Total EPF Amount:', '₹21475'),
-                  _buildLoanDetailRow('Employee Share:', '₹10742'),
-                  _buildLoanDetailRow('Employer Share:', '₹10742'),
+                  _buildLoanDetailRow('Total EPF Amount:', '₹${((int.parse(paySlipData.payable_salary)+int.parse(paySlipData.payable_salary)))}'),
+                  _buildLoanDetailRow('Employee Share:', '₹${(int.parse(paySlipData.payable_salary))}'),
+                  _buildLoanDetailRow('Employer Share:', '₹${(int.parse(paySlipData.payable_salary))}'),
                 ],
               ),
             ),
@@ -235,5 +319,13 @@ class _EPFPageState extends State<EPFPage> {
         ],
       ),
     );
+  }
+
+  int calculateEarningCTC(PaySlipListData paySlipListData) {
+    int totalEarnings = paySlipListData.allowanceDetails.fold(0, (sum, allowance) {
+      return sum + (int.tryParse(allowance.allowanceamount.toString()) ?? 0);
+    });
+
+    return totalEarnings + int.parse(paySlipListData.gross_salary);
   }
 }

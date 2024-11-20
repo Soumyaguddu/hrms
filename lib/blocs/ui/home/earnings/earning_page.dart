@@ -19,7 +19,7 @@ class _EarningPageState extends State<EarningPage> {
   ];
 
   final List<String> months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+     'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec','Jan', 'Feb', 'Mar',
   ];
 
   String selectedYear = '';
@@ -30,15 +30,7 @@ class _EarningPageState extends State<EarningPage> {
 
   late List<String> yearsData=[];
 
-  final List<Map<String, dynamic>> epfData = [
-    {'month': 'April 2024', 'amount': 14000, 'contribution': 4500},
-    {'month': 'May 2024', 'amount': 15000, 'contribution': 5000},
-    {'month': 'June 2024', 'amount': 17000, 'contribution': 6000},
-    {'month': 'July 2024', 'amount': 18000, 'contribution': 6000},
-    {'month': 'August 2024', 'amount': 18000, 'contribution': 6000},
-    {'month': 'September 2024', 'amount': 18000, 'contribution': 6000},
-    // Add more data for months
-  ];
+  double maxEarning =0.0;
 @override
   void initState() {
     // TODO: implement initState
@@ -136,92 +128,35 @@ class _EarningPageState extends State<EarningPage> {
               }
 
               if (state is SalaryAndPaySlipLoadedState) {
+                List<double> totalEarnings = [];
+                List<String> monthName = [];
+
+                state.paySlipData?.forEach((paySlip) {
+                  double grossSalary = double.parse(paySlip.gross_salary) ?? 0.0;
+                  double allowancesTotal = paySlip.allowanceDetails.fold(
+                      0.0, (sum, allowance) => sum + (allowance.allowanceamount ?? 0.0));
+                  double totalAmount = grossSalary + allowancesTotal;
+
+                  totalEarnings.add(totalAmount);
+                  totalEarnings.sort(); // Sorts in ascending order
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() {
+                      maxEarning = totalEarnings.last;
+                    });
+                  });
+                  print("Maximum Earning: $maxEarning");
+                  monthName.add(MonthNameHelper.getIdWiseMonthName((int.parse(paySlip.monthName)+1).toString()));
+                });
+
+
+                print(totalEarnings);
                 return
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 20),
-
-                      SizedBox(
-                        height: 300,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: AspectRatio(
-                            aspectRatio: 1.5,
-                            child: LineChart(
-                              LineChartData(
-                                gridData: FlGridData(
-                                  show: true,
-                                  drawVerticalLine: true,
-                                  verticalInterval: 1,
-                                  horizontalInterval: 1000,
-                                  getDrawingHorizontalLine: (value) {
-                                    return FlLine(
-                                      color: Colors.grey[300],
-                                      strokeWidth: 1,
-                                    );
-                                  },
-                                ),
-                                titlesData: FlTitlesData(
-                                  leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      interval: 10000,
-                                      reservedSize: 40,
-                                      getTitlesWidget: (value, meta) {
-                                        var formattedValue = (value / 1000).toInt().toString() + 'k';
-                                        return Text(
-                                          formattedValue,  // Display the formatted value with 'k'
-                                          style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  bottomTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      interval: 1,
-                                      getTitlesWidget: (value, meta) {
-                                        int index = value.toInt();
-                                        return Text(
-                                          months[index], // Show month names at the bottom
-                                          style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  rightTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false), // Hides the right-side labels
-                                  ),
-                                  topTitles: const AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false), // Hides the top labels
-                                  ),
-                                ),
-                                borderData: FlBorderData(
-                                  show: false,
-                                  border: Border.all(color: Colors.grey, width: 1),
-                                ),
-                                minX: 0,
-                                maxX: 11,
-                                minY: 0,
-                                maxY: 70000,
-                                lineBarsData: [
-                                  LineChartBarData(
-                                    spots: monthlyEarnings.asMap().entries.map((entry) {
-                                      return FlSpot(entry.key.toDouble(), entry.value);
-                                    }).toList(),
-                                    isCurved: true,
-                                    color: Colors.blueAccent,
-                                    barWidth: 3,
-                                    belowBarData: BarAreaData(show: true),
-                                    dotData: const FlDotData(show: true),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      const SizedBox(height: 30),
+                      buildLineChart(totalEarnings,monthName,maxEarning),
 
                       const Divider(),
 
@@ -232,15 +167,16 @@ class _EarningPageState extends State<EarningPage> {
                               child: Column(
                                 children: [
                                   ListView.builder(
-                                    shrinkWrap: true, // This prevents the ListView from taking all space
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),// This prevents the ListView from taking all space
                                     itemCount: state.paySlipData?.length,
                                     itemBuilder: (context, index) {
                                       final data = state.paySlipData?[index];
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                         child: ExpansionTile(
-                                          title: Text(MonthNameHelper.getIdWiseMonthName((int.parse(state.paySlipData![index].monthName)+1).toString()),
-                                              style: const TextStyle(fontWeight: FontWeight.normal)),
+                                          title:state.paySlipData!='null'? Text(MonthNameHelper.getIdWiseMonthName((int.parse(state.paySlipData![index].monthName)+1).toString()),
+                                              style: const TextStyle(fontWeight: FontWeight.normal)):Container(),
                                           leading: const Icon(Icons.calendar_month),
                                           children: [
                                             const Padding(
@@ -296,6 +232,28 @@ class _EarningPageState extends State<EarningPage> {
                                             ),
                                             salaryItem("EPF Contribution", "₹${state.paySlipData?[index].epf_amount}"),
                                             salaryItem("Employee State Insurance", "₹${state.paySlipData?[index].esi_amount}"),
+                                            const Divider(thickness: 2),
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  const Text(
+                                                    'Total Taxes',
+                                                    style: TextStyle(color: Color(
+                                                        0xFFAE9411), fontWeight: FontWeight.bold, fontSize: 18),
+                                                  ),
+                                                  Text(
+                                                    "₹${state.paySlipData?[index].pTaxAmount}",
+                                                    style: TextStyle(
+                                                      color: Colors.black ,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 18 ,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                             salaryItem("Professional Tax", "₹${state.paySlipData?[index].pTaxAmount}"),
                                             const Divider(thickness: 2),
                                             salaryItem('Total Net Pay', '₹${calculateEarningCTC(state.paySlipData![index])}', isBold: true),
@@ -393,6 +351,90 @@ class _EarningPageState extends State<EarningPage> {
     int totalDeductions = int.parse(paySlipListData.esi_amount)+int.parse(paySlipListData.pTaxAmount)+int.parse(paySlipListData.epf_amount);
 
     return totalEarnings +totalDeductions+ int.parse(paySlipListData.basic_salary);
+  }
+  Widget buildLineChart(List<double> earnings, List<String> monthName, double maxEarning) {
+    return
+      SizedBox(
+        height: 300,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: AspectRatio(
+            aspectRatio: 1.5,
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: true,
+                  verticalInterval: 1,
+                  horizontalInterval: 1000,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Colors.grey[300],
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 5000,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        var formattedValue = (value / 1000).toInt().toString() + 'k';
+                        return Text(
+                          formattedValue,  // Display the formatted value with 'k'
+                          style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                        );
+                      },
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        int index = value.toInt();
+                        return Text(
+                          months[index], // Show month names at the bottom
+                          style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                        );
+                      },
+                    ),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false), // Hides the right-side labels
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false), // Hides the top labels
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: false,
+                  border: Border.all(color: Colors.grey, width: 1),
+                ),
+                minX: 0,
+                maxX: 11,
+                minY: 0,
+                maxY: maxEarning,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: earnings.asMap().entries.map((entry) {
+                      return FlSpot(entry.key.toDouble(), entry.value);
+                    }).toList(),
+                    isCurved: true,
+                    color: Colors.blueAccent,
+                    barWidth: 3,
+                    belowBarData: BarAreaData(show: true),
+                    dotData: const FlDotData(show: true),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
   }
 
   Widget salaryItem(String title, String amount, {bool isBold = false}) {
