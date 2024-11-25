@@ -256,6 +256,7 @@ class _PayslipPageState extends State<PayslipPage> {
     String establishmentTypeData = prefs.getString("establishmentType") ?? '';
     String designationData = prefs.getString("designation") ?? '';
     String departmentNameData = prefs.getString("departmentName") ?? '';
+
     print('doj===$dojData');
     print('establishmentName===$establishmentName');
     print('establishmentType===$establishmentTypeData');

@@ -11,6 +11,7 @@ class Endpoints {
   static const String login = 'payroll/signin';
   static const String salaryDetails = 'payroll/salaryDetails';
   static const String paySlipList = 'payroll/salaryDetailsPayshipYearly?';
+  static const String profile = 'payroll/employeeInfo';
 
 
 

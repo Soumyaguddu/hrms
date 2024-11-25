@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../constants/ColorConstant.dart';
 import '../../../routes/Routes.dart';
@@ -10,11 +11,16 @@ class LoanRequestPage extends StatefulWidget {
 
 class _LoanRequestPageState extends State<LoanRequestPage> {
   final _formKey = GlobalKey<FormState>();
-  String _loanType = 'Personal';
+  String _loanType = 'Fixed';
+  String _loanTenure = '3 Months';
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _nameCodeController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _purposeController = TextEditingController();
   final TextEditingController _repaymentPeriodController = TextEditingController();
-
+  final TextEditingController _deductionTypeController = TextEditingController();
+String empName='';
+String empCode='';
   @override
   void dispose() {
     _amountController.dispose();
@@ -30,7 +36,12 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
       // Add submission logic here (e.g., send data to an API)
     }
   }
-
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getLoginData();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,20 +83,39 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Loan Type Dropdown
-                Text('Loan Type', style: TextStyle(fontWeight: FontWeight.bold)),
-               SizedBox(height: 5,),
-                DropdownButtonFormField<String>(
-                  value: _loanType,
-                  items: ['Personal', 'Education', 'Home', 'Car', 'Business']
-                      .map((type) => DropdownMenuItem(value: type, child: Text(type)))
-                      .toList(),
-                  onChanged: (value) => setState(() => _loanType = value!),
-                  decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
+
+                Text('Employee Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 5,),
+                TextFormField(
+                  controller: _nameController,
+                  keyboardType: TextInputType.text,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: 'Enter emp Name',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Employee name is required';
+                    return null;
+                  },
                 ),
-                SizedBox(height: 16),
-        
-                // Loan Amount
+                SizedBox(height: 5,),
+                Text('Employee Code', style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 5,),
+                TextFormField(
+                  controller: _nameCodeController,
+                  keyboardType: TextInputType.text,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: 'Enter emp code',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Employee code is required';
+                    return null;
+                  },
+                ),
+                SizedBox(height: 5,),
                 Text('Loan Amount', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 5,),
                 TextFormField(
@@ -100,39 +130,103 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 5,),
+                Text('Loan Type', style: TextStyle(fontWeight: FontWeight.bold)),
+               SizedBox(height: 5,),
+                DropdownButtonFormField<String>(
+                  value: _loanType,
+                  items: ['Fixed', 'Flexible']
+                      .map((type) => DropdownMenuItem(value: type, child: Text(type)))
+                      .toList(),
+                  onChanged: (value) => setState(() => {_loanType = value!}),
+                  decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
+                ),
+                SizedBox(height: 5,),
+                Text('Select Tenure', style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 5,),
+
+                _loanType=='Fixed'?
+                DropdownButtonFormField<String>(
+                  value: _loanTenure,
+                  items: {
+                    '3 Months': '3',
+                    '6 Months': '6',
+                    '9 Months': '9',
+                    '12 Months': '12',
+                    '18 Months': '18',
+                    '24 Months': '24',
+                    '36 Months': '36'
+                  }
+                      .entries
+                      .map((entry) => DropdownMenuItem(
+                    value: entry.key,
+                    child: Text(entry.key),
+                  ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _loanTenure = value!;
+                      if (_amountController.text.isNotEmpty) {
+                        _repaymentPeriodController.text =
+                            (double.parse(_amountController.text) / double.parse({
+                              '3 Months': '3',
+                              '6 Months': '6',
+                              '9 Months': '9',
+                              '12 Months': '12',
+                              '18 Months': '18',
+                              '24 Months': '24',
+                              '36 Months': '36'
+                            }[_loanTenure]!))
+                                .toStringAsFixed(2);
+                      }
+                    });
+                  },
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                )
+            :  TextFormField(
+                  controller: _deductionTypeController,
+                  keyboardType: TextInputType.text,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: '',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+
+                ),
+
+
+                SizedBox(height: 5),
+        
+                // Loan Amount
+
+
         
                 // Repayment Period
-                Text('Repayment Period (Months)', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Monthly Deductions', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 5,),
                 TextFormField(
+                  onChanged: (value){
+                    setState(() {
+
+                    });
+                  },
                   controller: _repaymentPeriodController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    hintText: 'Enter repayment period',
+                    hintText: 'Enter monthly deductions',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Please enter the repayment period';
+                    if (value == null || value.isEmpty) return 'Please enter the monthly deductions';
+                    else if (_amountController.text.isEmpty) return 'Please enter loan amount';
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
-        
-                // Purpose
-                Text('Purpose', style: TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(height: 5,),
-                TextFormField(
-                  controller: _purposeController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter loan purpose',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return 'Please enter the loan purpose';
-                    return null;
-                  },
-                ),
+
                 SizedBox(height: 24),
         
                 // Submit Button
@@ -168,5 +262,22 @@ class _LoanRequestPageState extends State<LoanRequestPage> {
         ),
       ),
     );
+  }
+
+  Future<void> getLoginData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String doj = prefs.getString("doj") ?? '';
+    String establishmentName = prefs.getString("establishmentName") ?? '';
+    String establishmentTypeData = prefs.getString("establishmentType") ?? '';
+
+    print('doj===$doj');
+    print('establishmentName===$establishmentName');
+    print('establishmentType===$establishmentTypeData');
+    setState(() {
+      _nameController.text = prefs.getString("empName") ?? '';
+      _nameCodeController.text = prefs.getString("empCode") ?? '';
+
+    });
+
   }
 }

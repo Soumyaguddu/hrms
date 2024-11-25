@@ -44,6 +44,8 @@ class Authrepository{
           // Example of storing a string or other data
           await prefs.setString('user_token', response.data['data']['token'] ?? '');
           await prefs.setString('doj', response.data['data']['user']['doj'] ?? '');
+          await prefs.setString('empCode', response.data['data']['user']['EmpCode'] ?? '');
+          await prefs.setString('empName', response.data['data']['user']['name'] ?? '');
           await prefs.setString('establishmentName', response.data['data']['user']['establishmentName'] ?? '');
           await prefs.setString('establishmentType', response.data['data']['user']['establishmentType'] ?? '');
           await prefs.setString('departmentName', response.data['data']['user']['Department']['departmentName'] ?? '');

@@ -14,21 +14,12 @@ class EPFPage extends StatefulWidget {
 }
 
 class _EPFPageState extends State<EPFPage> {
-  // List of months for the EPF data
-  final List<Map<String, dynamic>> epfData = [
-    {'month': 'April 2024', 'amount': 14000, 'contribution': 4500},
-    {'month': 'May 2024', 'amount': 15000, 'contribution': 5000},
-    {'month': 'June 2024', 'amount': 17000, 'contribution': 6000},
-    {'month': 'July 2024', 'amount': 18000, 'contribution': 6000},
-    {'month': 'August 2024', 'amount': 18000, 'contribution': 6000},
-    {'month': 'September 2024', 'amount': 18000, 'contribution': 6000},
-    // Add more data for months
-  ];
 
-  final List<String> years = ['2024-2025', '2023-2024'];
   String selectedYear = '';
 
   String establishmentType = '';
+  String pf_no = '';
+  String esi_no = '';
 
   String doj='';
 
@@ -42,12 +33,15 @@ class _EPFPageState extends State<EPFPage> {
     String doj = prefs.getString("doj") ?? '';
     String establishmentName = prefs.getString("establishmentName") ?? '';
     String establishmentTypeData = prefs.getString("establishmentType") ?? '';
+
     print('doj===$doj');
     print('establishmentName===$establishmentName');
     print('establishmentType===$establishmentTypeData');
     DateTime targetDate = DateTime.parse(doj);
     setState(() {
       establishmentType=establishmentTypeData.toString();
+      pf_no = prefs.getString("pf_no") ?? '';
+      esi_no = prefs.getString("esi_no") ?? '';
       yearsData = getYearsList(targetDate.year).map((year) => year.toString()).toList();
 
     });
@@ -179,6 +173,7 @@ class _EPFPageState extends State<EPFPage> {
 
                 print(totalEarnings);
                 return
+                  state.paySlipData!=null?
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -234,7 +229,7 @@ class _EPFPageState extends State<EPFPage> {
                         ),
                       ),
                     ],
-                  );
+                  ):Container();
               }
 
               return const Center(child: Text("An error occurred!"));
@@ -303,7 +298,7 @@ class _EPFPageState extends State<EPFPage> {
                  
                   _buildLoanDetailRow('Employee Name', paySlipData.emp_name,),
                   _buildLoanDetailRow('Employee ID', paySlipData.emp_code),
-                  _buildLoanDetailRow('PF Number:', "WB/HLO/14778114/000/14785",),
+                  pf_no!='null'?_buildLoanDetailRow('PF Number:', pf_no,):_buildLoanDetailRow('PF Number', ''),
                   _buildLoanDetailRow('Total EPF Amount:', '₹${((int.parse(paySlipData.payable_salary)+int.parse(paySlipData.payable_salary)))}'),
                   _buildLoanDetailRow('Employee Share:', '₹${(int.parse(paySlipData.payable_salary))}'),
                   _buildLoanDetailRow('Employer Share:', '₹${(int.parse(paySlipData.payable_salary))}'),

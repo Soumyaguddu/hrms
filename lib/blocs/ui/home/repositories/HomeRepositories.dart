@@ -1,5 +1,6 @@
 
 import 'package:dio/dio.dart';
+import 'package:hrms/blocs/ui/home/data/user_profile_data.dart';
 import 'package:hrms/data/api/hrms_api.dart';
 
 import '../../../../core/network/endpoints.dart';
@@ -20,6 +21,15 @@ class HomeRepository{
       return SalaryResponseData.fromJson(responseData);
     } catch (ex) {
       throw ex;
+    }
+  }
+  Future<UserProfileData> fetchUserProfile() async {
+    try {
+      Response response = await api.sendRequest.get(Endpoints.profile);
+      Map<String, dynamic> responseData = response.data['data'];
+      return UserProfileData.fromJson(responseData);
+    } catch (ex) {
+      throw Exception("Error fetching user profile: $ex");
     }
   }
   Future<List<PaySlipListData>> fetchPaySlip(String selectedYear,String establishmentType) async {
