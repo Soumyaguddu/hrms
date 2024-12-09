@@ -10,6 +10,7 @@ import 'package:hrms/blocs/ui/home/pay_slip/data/pay_slip_list_data.dart';
 import 'package:hrms/blocs/ui/home/salary/salary_page.dart';
 
 import '../ui/auth/login_screen.dart';
+import '../ui/auth/otp_screen.dart';
 import '../ui/home/documents/document_listing_page.dart';
 import '../ui/home/home.dart';
 import '../ui/home/loan/loan_listing_page.dart';
@@ -21,6 +22,7 @@ class Routes {
 
   static const String splash = "/splash";
   static const String login = "/login";
+  static const String otp = "/otp";
   static const String home = "/home";
   static const String salary = "/salary";
   static const String pay_slip = "/pay_slip";
@@ -44,6 +46,9 @@ class Routes {
         case login:
         return MaterialPageRoute(
             builder: (context) => const LoginScreen());
+      case otp:
+        return MaterialPageRoute(
+            builder: (context) => const OTPScreen());
         case home:
         return MaterialPageRoute(
             builder: (context) => const HomePage());

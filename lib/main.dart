@@ -36,7 +36,6 @@ class MyApp extends StatelessWidget {
         ),
         onGenerateRoute: Routes.onGenerate,
         initialRoute: Routes.splash,
-        //home: const HomeUpdatePage(),
       ),
     );
   }

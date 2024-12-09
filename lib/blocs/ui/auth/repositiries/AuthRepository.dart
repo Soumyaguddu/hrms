@@ -52,7 +52,7 @@ class Authrepository{
           await prefs.setString('designation', response.data['data']['user']['Designation']['designation'] ?? '');
           String token = prefs.getString("user_token") ?? '';
           print('authToken===$token');
-           Navigator.pushReplacementNamed(context, Routes.home);
+           Navigator.pushReplacementNamed(context, Routes.otp);
           SnackbarHelper.showSnackBar(context,response.data['message']);
         }
         else
